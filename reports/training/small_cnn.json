@@ -1,0 +1,50 @@
+{
+  "model": "small_cnn",
+  "display_name": "Small CNN (from scratch)",
+  "parameters": 391466,
+  "epochs": 8,
+  "best_val_acc": 0.9376,
+  "train_minutes": 4.9,
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 1.1988,
+      "val_acc": 0.7274
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.9318,
+      "val_acc": 0.5431
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.8304,
+      "val_acc": 0.7626
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.7265,
+      "val_acc": 0.7354
+    },
+    {
+      "epoch": 5,
+      "train_loss": 0.6465,
+      "val_acc": 0.8443
+    },
+    {
+      "epoch": 6,
+      "train_loss": 0.5866,
+      "val_acc": 0.8848
+    },
+    {
+      "epoch": 7,
+      "train_loss": 0.5333,
+      "val_acc": 0.935
+    },
+    {
+      "epoch": 8,
+      "train_loss": 0.5071,
+      "val_acc": 0.9376
+    }
+  ]
+}

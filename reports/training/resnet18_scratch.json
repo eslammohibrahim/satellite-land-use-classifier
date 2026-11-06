@@ -1,0 +1,50 @@
+{
+  "model": "resnet18_scratch",
+  "display_name": "ResNet18 (from scratch)",
+  "parameters": 11181642,
+  "epochs": 8,
+  "best_val_acc": 0.9254,
+  "train_minutes": 8.7,
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 1.1373,
+      "val_acc": 0.5228
+    },
+    {
+      "epoch": 2,
+      "train_loss": 1.0697,
+      "val_acc": 0.3506
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.9263,
+      "val_acc": 0.6657
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.7897,
+      "val_acc": 0.817
+    },
+    {
+      "epoch": 5,
+      "train_loss": 0.6818,
+      "val_acc": 0.8067
+    },
+    {
+      "epoch": 6,
+      "train_loss": 0.5975,
+      "val_acc": 0.8648
+    },
+    {
+      "epoch": 7,
+      "train_loss": 0.5303,
+      "val_acc": 0.8867
+    },
+    {
+      "epoch": 8,
+      "train_loss": 0.4819,
+      "val_acc": 0.9254
+    }
+  ]
+}

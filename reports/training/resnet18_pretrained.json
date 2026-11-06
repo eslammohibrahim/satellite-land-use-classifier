@@ -1,0 +1,50 @@
+{
+  "model": "resnet18_pretrained",
+  "display_name": "ResNet18 (ImageNet pretrained)",
+  "parameters": 11181642,
+  "epochs": 8,
+  "best_val_acc": 0.9791,
+  "train_minutes": 8.6,
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.8609,
+      "val_acc": 0.9357
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.4771,
+      "val_acc": 0.9387
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.4571,
+      "val_acc": 0.9193
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.4073,
+      "val_acc": 0.9433
+    },
+    {
+      "epoch": 5,
+      "train_loss": 0.3914,
+      "val_acc": 0.9665
+    },
+    {
+      "epoch": 6,
+      "train_loss": 0.3648,
+      "val_acc": 0.9731
+    },
+    {
+      "epoch": 7,
+      "train_loss": 0.3331,
+      "val_acc": 0.977
+    },
+    {
+      "epoch": 8,
+      "train_loss": 0.3223,
+      "val_acc": 0.9791
+    }
+  ]
+}

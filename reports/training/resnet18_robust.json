@@ -1,0 +1,50 @@
+{
+  "model": "resnet18_robust",
+  "display_name": "ResNet18 pretrained + robustness training",
+  "parameters": 11181642,
+  "epochs": 8,
+  "best_val_acc": 0.9706,
+  "train_minutes": 12.7,
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 1.0805,
+      "val_acc": 0.9161
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.673,
+      "val_acc": 0.8961
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.6152,
+      "val_acc": 0.9415
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.5574,
+      "val_acc": 0.9443
+    },
+    {
+      "epoch": 5,
+      "train_loss": 0.5121,
+      "val_acc": 0.947
+    },
+    {
+      "epoch": 6,
+      "train_loss": 0.4719,
+      "val_acc": 0.9643
+    },
+    {
+      "epoch": 7,
+      "train_loss": 0.4387,
+      "val_acc": 0.9693
+    },
+    {
+      "epoch": 8,
+      "train_loss": 0.425,
+      "val_acc": 0.9706
+    }
+  ]
+}
