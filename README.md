@@ -1,5 +1,7 @@
 # Satellite Land-Use Classifier
 
+[![tests](https://github.com/eslammohibrahim/satellite-land-use-classifier/actions/workflows/tests.yml/badge.svg)](https://github.com/eslammohibrahim/satellite-land-use-classifier/actions/workflows/tests.yml)
+
 A PyTorch image classifier that labels satellite images with one of 10 land-use classes, served through a FastAPI web service. It includes a comparison of four models and a robustness study that found, and then fixed, a serious weakness.
 
 **Results on 5,400 unseen test images:**
@@ -131,6 +133,15 @@ python src/evaluate.py
 pytest                        # API and data tests
 ```
 
+### With Docker
+
+```bash
+docker build -t land-use-api .
+docker run -p 8000:8000 land-use-api
+```
+
+The image includes the trained weights and runs as a non-root user. On every push, CI builds the image, starts it, and checks that it classifies an example image correctly.
+
 The trained weights for both ResNet18 models are attached to the [v1.0 release](https://github.com/eslammohibrahim/satellite-land-use-classifier/releases/tag/v1.0).
 
 ## Project structure
@@ -157,4 +168,3 @@ reports/
 
 - Add JPEG compression to robustness training, and test on other unseen corruptions (haze, clouds).
 - Train longer and compare more architectures (EfficientNet, ConvNeXt-Tiny).
-- Package the service in a Docker image.

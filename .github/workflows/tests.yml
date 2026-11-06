@@ -1,0 +1,41 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run tests
+        run: pytest -q
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the image
+        run: docker build -t land-use-api .
+      - name: Start the container
+        run: docker run -d -p 8000:8000 --name api land-use-api
+      - name: Wait until the API is up
+        run: |
+          for i in $(seq 1 60); do
+            curl -sf http://localhost:8000/health && exit 0
+            sleep 2
+          done
+          docker logs api
+          exit 1
+      - name: Classify an example image
+        run: |
+          curl -sf -X POST http://localhost:8000/predict -F "file=@app/static/examples/river.png" | tee response.json
+          grep -q '"prediction":"River"' response.json
