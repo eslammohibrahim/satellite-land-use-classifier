@@ -4,4 +4,4 @@ __pycache__/
 .pytest_cache/
 data/
 models/
-reports/train_log.txt
+reports/*log.txt
