@@ -2,12 +2,11 @@
 
 [![tests](https://github.com/eslammohibrahim/satellite-land-use-classifier/actions/workflows/tests.yml/badge.svg)](https://github.com/eslammohibrahim/satellite-land-use-classifier/actions/workflows/tests.yml)
 
-A PyTorch image classifier that labels satellite images with one of 10 land-use classes, served through a FastAPI web service. It includes a comparison of four models and a robustness study that found, and then fixed, a serious weakness.
+Give it a satellite image and it tells you what's on the ground: forest, river, highway, crops, one of 10 classes. The model is in PyTorch and there's a small FastAPI service around it.
 
-**Results on 5,400 unseen test images:**
-- **98.1% accuracy** with a fine-tuned ImageNet ResNet18. That's 5.3 points higher than the same network trained from scratch with the same budget.
-- The standard model **collapses under image noise** (15% accuracy, close to the 10% you'd get by guessing). Training with realistic degradations raises that to **91.5%**, at a cost of 0.8 points on clean images.
-- Robustness **doesn't carry over** to a corruption type the model never saw during training (JPEG compression). You have to train for the degradations you expect.
+I fine-tuned a ResNet18 that was already trained on ImageNet, and on the 5,400 test images it gets 98.1%. The same network trained from zero for the same 8 epochs only got to 92.7%.
+
+The more interesting part came after. I added noise to the test images and accuracy fell to 15%, not much better than picking one of the 10 classes at random. Retraining with noise, blur and lighting changes brought it back to 91.5%, and clean accuracy only lost 0.8 points. But it didn't help with JPEG compression, which I had left out of training on purpose. So it only becomes robust to the kinds of damage it was trained on.
 
 ![Example predictions](reports/figures/examples.png)
 
@@ -15,16 +14,11 @@ A PyTorch image classifier that labels satellite images with one of 10 land-use 
 
 [EuroSAT RGB](https://huggingface.co/datasets/timm/eurosat-rgb) (MIT license): 27,000 Sentinel-2 satellite images, 64×64 pixels, 10 classes: AnnualCrop, Forest, HerbaceousVegetation, Highway, Industrial, Pasture, PermanentCrop, Residential, River, SeaLake.
 
-- I used the official splits: 16,200 train, 5,400 validation, 5,400 test.
-- I checked for leakage: no image ID or identical image appears in more than one split.
-- The classes are slightly imbalanced (Pasture has 1,195 training images, Residential has 1,863), so I also report macro F1.
-- The data isn't stored in the repo. `src/data.py` downloads it on first run.
+I used the splits that come with the dataset (16,200 / 5,400 / 5,400) and made sure no image is in more than one of them, both by ID and by content. Some classes have more images than others, Pasture 1,195 in training against 1,863 for Residential, so next to accuracy I also report macro F1. The data isn't in the repo; `src/data.py` downloads it the first time.
 
 ## Approach
 
-- **Same training budget for every model:** 8 epochs, AdamW, one-cycle learning rate schedule, label smoothing 0.05, CPU only.
-- **Augmentation:** random flips and 90° rotations. Satellite images have no "up", so these give free extra data.
-- **Model selection:** each model keeps its checkpoint with the best **validation** accuracy. The test set is used only for the final numbers.
+Every model got the same budget: 8 epochs, AdamW, a one-cycle learning rate schedule and label smoothing of 0.05, all on CPU. For augmentation I used random flips and 90° rotations, since a satellite image has no "up". Each model keeps the checkpoint with the best validation accuracy, and the test set is only used for the final numbers.
 
 ## Results
 
@@ -32,14 +26,12 @@ A PyTorch image classifier that labels satellite images with one of 10 land-use 
 |---|---|---|---|---|---|---|
 | Small CNN, from scratch | 0.4M | 4.9 min | 93.8% | 94.5% | 0.944 | about 2 ms |
 | ResNet18, from scratch | 11.2M | 8.7 min | 92.5% | 92.7% | 0.926 | about 9 ms |
-| **ResNet18, ImageNet pretrained** | 11.2M | 8.6 min | **97.9%** | **98.1%** | **0.980** | about 9 ms |
+| ResNet18, ImageNet pretrained | 11.2M | 8.6 min | 97.9% | 98.1% | 0.980 | about 9 ms |
 | ResNet18 pretrained + robustness training | 11.2M | 12.7 min | 97.1% | 97.2% | 0.972 | about 9 ms |
 
 ![Training curves](reports/figures/training_curves.png)
 
-What this shows:
-- **Transfer learning is the biggest win.** The pretrained ResNet18 reaches 93.6% validation accuracy after a single epoch. The same network trained from scratch needs all 8 epochs to get to 92.5%.
-- **The small CNN beats ResNet18 from scratch with this budget.** A 28× larger model needs more data or more epochs than this to pay off. Both from-scratch curves are still rising at epoch 8, so the gap would likely narrow with longer training.
+Pretraining made the biggest difference. The pretrained ResNet18 was at 93.6% validation accuracy after one epoch, while the same network from scratch needed all 8 epochs to reach 92.5%. I didn't expect the small CNN to beat ResNet18 from scratch, but with only 8 epochs a model 28 times bigger doesn't have time to pay off. Both from-scratch curves were still going up at the end, so longer training would probably close the gap.
 
 Per class (ResNet18 pretrained, test set):
 
@@ -58,9 +50,7 @@ Per class (ResNet18 pretrained, test set):
 
 ![Confusion matrix](reports/figures/confusion_matrix.png)
 
-The most common mistakes make sense visually:
-- **PermanentCrop → HerbaceousVegetation** (16 images) and **PermanentCrop → AnnualCrop** (10): orchards and vineyards look like other green fields at 64×64 pixels.
-- **River → Highway** (12): both are long, thin lines across the image.
+The mistakes it makes are understandable when you look at the images. PermanentCrop gets confused with HerbaceousVegetation (16 images) and AnnualCrop (10), because at 64×64 pixels an orchard or vineyard looks like any other green field. River gets called Highway 12 times, since both are a long thin line across the image.
 
 ## Robustness: finding and fixing a weakness
 
@@ -69,7 +59,7 @@ Real satellite images aren't always clean: there's sensor noise, haze, poor ligh
 | Corruption | Standard model | Robust model |
 |---|---|---|
 | None (clean) | 98.1% | 97.2% |
-| Gaussian noise | **15.0%** | **91.5%** |
+| Gaussian noise | 15.0% | 91.5% |
 | Blur | 55.1% | 95.8% |
 | Darker (60% brightness) | 70.2% | 96.3% |
 | Low contrast (50%) | 75.3% | 95.7% |
@@ -77,12 +67,11 @@ Real satellite images aren't always clean: there's sensor noise, haze, poor ligh
 
 ![Robustness](reports/figures/robustness.png)
 
-- **The weakness:** on noisy images the standard model is barely better than guessing. EuroSAT images are low in contrast: pixel values within a typical image vary by only about 0.095 (on a 0–1 scale), and the test noise has a standard deviation of 0.08. So the noise is almost as strong as the image content itself.
-- **The fix:** the robust model is the same pretrained ResNet18, trained with random noise, blur, brightness, and contrast changes added to the training images. It recovers to above 91% on every corruption it trained on.
-- **The limit:** JPEG compression was deliberately kept out of training, to test whether robustness transfers to an unseen corruption. It barely does (55.6% → 59.3%).
-- **The trade-off:** 0.8 points of clean accuracy in exchange for about 76 points under noise.
+Noise hurt the most. I looked into why: EuroSAT images are low in contrast, and the pixel values inside a typical image only vary by about 0.095 on a 0 to 1 scale. The noise I tested with has a standard deviation of 0.08, so it's almost as strong as the image itself.
 
-**Which model the API serves:** before looking at the test results, I set a rule: serve the robust model if its validation accuracy is within 0.5 points of the standard model. It came in 0.85 points lower, so the API serves the standard model by default. If the images you expect are noisy or low quality, the robust model is the better choice, and you can switch to it with one environment variable (see below).
+The robust model is the same pretrained ResNet18, trained with random noise, blur, brightness and contrast changes added to the training images. It's above 91% on every corruption it saw in training. I kept JPEG out of training to check whether the robustness would carry over to something new, and it mostly didn't (55.6% to 59.3%). Overall it gives up 0.8 points on clean images for about 76 points on noisy ones.
+
+To decide which model the API should serve, I set a rule before looking at the test results: use the robust one if its validation accuracy is within 0.5 points of the standard one. It ended up 0.85 points behind, so the API serves the standard model by default. If your images are noisy or low quality, switching to the robust model is one environment variable (see below).
 
 ## API
 
@@ -104,9 +93,7 @@ curl -X POST http://127.0.0.1:8000/predict -F "file=@app/static/examples/residen
 | `GET /classes` | The 10 class names |
 | `GET /docs` | Interactive API docs (Swagger) |
 
-Error handling: a file that isn't an image returns `400`, and a file larger than 5 MB returns `413`.
-
-Confidences top out around 95–96%. That's expected: label smoothing during training keeps the model from becoming overconfident.
+A file that isn't an image returns 400, and anything over 5 MB returns 413. You'll notice the confidence never goes much above 95 to 96%. That comes from the label smoothing during training, which stops the model from being overconfident.
 
 ## Run it
 
@@ -164,7 +151,6 @@ reports/
   results.json   all test and robustness metrics
 ```
 
-## Next steps
+## What I'd do next
 
-- Add JPEG compression to robustness training, and test on other unseen corruptions (haze, clouds).
-- Train longer and compare more architectures (EfficientNet, ConvNeXt-Tiny).
+Add JPEG to the robustness training and test on other corruptions it hasn't seen, like haze and clouds. I'd also like to train for longer and try EfficientNet and ConvNeXt-Tiny.
