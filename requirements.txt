@@ -1,0 +1,15 @@
+# CPU builds of PyTorch (works on any machine, no GPU needed)
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.15.0+cpu
+torchvision==0.29.2+cpu
+numpy==2.4.6
+pandas==3.1.1
+pyarrow==26.0.1
+pillow==13.0.0
+scikit-learn==1.9.1
+matplotlib==3.11.2
+fastapi==0.162.0
+uvicorn==0.54.0
+python-multipart==0.0.33
+httpx2==2.16.0
+pytest==9.2.0
